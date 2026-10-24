@@ -161,7 +161,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
     private fun soundUri(context: Context, sound: AlarmSound): Uri {
         val res = when (sound) {
-            AlarmSound.AZAN -> dev.programmerq.bruneiazan.shared.R.raw.azan_placeholder
+            AlarmSound.AZAN -> dev.programmerq.bruneiazan.shared.R.raw.masjid_an_nabawi
             AlarmSound.BEEP -> dev.programmerq.bruneiazan.shared.R.raw.beep
         }
         return Uri.parse("android.resource://${context.packageName}/$res")

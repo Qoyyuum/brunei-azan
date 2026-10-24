@@ -68,7 +68,7 @@ class AlarmActivity : ComponentActivity() {
 
     private fun startAlarm(sound: AlarmSound, vibrate: Boolean) {
         val res = when (sound) {
-            AlarmSound.AZAN -> dev.programmerq.bruneiazan.shared.R.raw.azan_placeholder
+            AlarmSound.AZAN -> dev.programmerq.bruneiazan.shared.R.raw.masjid_an_nabawi
             AlarmSound.BEEP -> dev.programmerq.bruneiazan.shared.R.raw.beep
         }
         player = MediaPlayer.create(this, res)?.apply {

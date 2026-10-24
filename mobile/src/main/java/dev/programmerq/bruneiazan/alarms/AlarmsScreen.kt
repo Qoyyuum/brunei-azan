@@ -1,6 +1,8 @@
 package dev.programmerq.bruneiazan.alarms
 
 import android.media.MediaPlayer
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +37,7 @@ import dev.programmerq.bruneiazan.shared.settings.AlarmSound
 import dev.programmerq.bruneiazan.shared.settings.CustomAlarm
 import dev.programmerq.bruneiazan.shared.settings.Settings
 import java.util.UUID
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private val PRAYER_ORDER = listOf(
@@ -52,18 +55,53 @@ private val PRAYER_ORDER = listOf(
 fun AlarmsScreen(app: AppState, settings: Settings) {
     val context = LocalContext.current
     var preview by remember { mutableStateOf<MediaPlayer?>(null) }
+    var testing by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
+    val vibrator = remember { context.getSystemService(Vibrator::class.java) }
+
+    fun stopTest() {
+        preview?.release()
+        preview = null
+        vibrator?.cancel()
+        testing = false
+    }
 
     DisposableEffect(Unit) {
         onDispose {
             preview?.release()
             preview = null
+            vibrator?.cancel()
         }
     }
 
     fun playPreview(resId: Int) {
-        preview?.release()
+        stopTest()
         preview = MediaPlayer.create(context, resId)?.apply { start() }
+    }
+
+    fun testAlarm() {
+        if (testing) {
+            stopTest()
+            return
+        }
+        preview?.release()
+        preview = MediaPlayer.create(
+            context,
+            when (settings.alarmSound) {
+                AlarmSound.AZAN -> dev.programmerq.bruneiazan.shared.R.raw.masjid_an_nabawi
+                AlarmSound.BEEP -> dev.programmerq.bruneiazan.shared.R.raw.beep
+            },
+        )?.apply { start() }
+        // Vibrate regardless of the vibration setting — the test should
+        // feel like a real alarm.
+        vibrator?.vibrate(
+            VibrationEffect.createWaveform(longArrayOf(0, 600, 400, 600, 400), -1),
+        )
+        testing = true
+        app.scope.launch {
+            delay(5_000)
+            stopTest()
+        }
     }
 
     Column(
@@ -120,7 +158,7 @@ fun AlarmsScreen(app: AppState, settings: Settings) {
                     TextButton(onClick = {
                         playPreview(
                             when (sound) {
-                                AlarmSound.AZAN -> dev.programmerq.bruneiazan.shared.R.raw.azan_placeholder
+                                AlarmSound.AZAN -> dev.programmerq.bruneiazan.shared.R.raw.masjid_an_nabawi
                                 AlarmSound.BEEP -> dev.programmerq.bruneiazan.shared.R.raw.beep
                             },
                         )
@@ -130,8 +168,14 @@ fun AlarmsScreen(app: AppState, settings: Settings) {
                 },
             )
         }
+        TextButton(onClick = { testAlarm() }, modifier = Modifier.padding(top = 4.dp)) {
+            Text(
+                if (testing) "Stop test" else "Test alarm (5s)",
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+        }
         Text(
-            "Replace the placeholder azan by dropping a real recording into res/raw.",
+            "Swap the azan recording by replacing res/raw/masjid_an_nabawi.mp3.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp),
