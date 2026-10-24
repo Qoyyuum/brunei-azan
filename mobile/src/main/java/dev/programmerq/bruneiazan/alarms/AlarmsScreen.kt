@@ -174,12 +174,6 @@ fun AlarmsScreen(app: AppState, settings: Settings) {
                 color = MaterialTheme.colorScheme.onBackground,
             )
         }
-        Text(
-            "Swap the azan recording by replacing res/raw/masjid_an_nabawi.mp3.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp),
-        )
 
         SectionHeader("Vibration")
         SwitchRow(
