@@ -18,11 +18,21 @@ object AlarmScheduler {
     fun registerNext(context: Context, receiverClass: Class<*>, alarm: AlarmInstance) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val receiverPi = receiverIntent(context, receiverClass, alarm)
-        val showPi = appOpenIntent(context)
-        alarmManager.setAlarmClock(
-            AlarmManager.AlarmClockInfo(alarm.triggerAtMillis, showPi),
-            receiverPi,
-        )
+        // setAlarmClock needs no permission on phones but DOES require an exact
+        // alarm permission on Wear — USE_EXACT_ALARM is declared and auto-granted
+        // for alarm apps, but fall back rather than crash if it's ever missing.
+        if (alarmManager.canScheduleExactAlarms()) {
+            alarmManager.setAlarmClock(
+                AlarmManager.AlarmClockInfo(alarm.triggerAtMillis, appOpenIntent(context)),
+                receiverPi,
+            )
+        } else {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                alarm.triggerAtMillis,
+                receiverPi,
+            )
+        }
     }
 
     fun cancel(context: Context, receiverClass: Class<*>) {
