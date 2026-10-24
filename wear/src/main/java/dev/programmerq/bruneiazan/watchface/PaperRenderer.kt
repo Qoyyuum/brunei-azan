@@ -36,7 +36,7 @@ class PaperRenderer(
     currentUserStyleRepository,
     watchState,
     CanvasType.HARDWARE,
-    1000L,
+    30_000L,
     false,
 ) {
 

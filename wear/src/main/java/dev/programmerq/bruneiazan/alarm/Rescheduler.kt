@@ -4,28 +4,37 @@ import android.content.Context
 import dev.programmerq.bruneiazan.presentation.WearAppState
 import dev.programmerq.bruneiazan.shared.alarms.AlarmPlanner
 import dev.programmerq.bruneiazan.shared.alarms.AlarmScheduler
+import dev.programmerq.bruneiazan.shared.api.PrayerDay
+import dev.programmerq.bruneiazan.shared.schedule.MonthCache
+import java.io.File
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlinx.coroutines.flow.first
 
 private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
 
+/** Cache-only alarm planning — receivers must never block on the network. */
 object Rescheduler {
 
     suspend fun schedule(context: Context) {
         val app = WearAppState(context)
         val settings = app.settings.first()
+        val cache = MonthCache(File(context.filesDir, "months"))
+        val district = settings.district.apiKey
         val today = LocalDate.now(BRUNEI_ZONE)
-        val todayDay = app.repository.day(today, settings.district.apiKey)
-        val tomorrowDay = app.repository.day(today.plusDays(1), settings.district.apiKey)
+        val tomorrow = today.plusDays(1)
+
+        val todayDay = cached(cache, district, today)
+        val tomorrowDay = cached(cache, district, tomorrow)
 
         val next = todayDay?.let {
             AlarmPlanner.upcomingAlarms(settings, it, tomorrowDay, ZonedDateTime.now(BRUNEI_ZONE))
         }?.firstOrNull()
             ?: AlarmPlanner.upcomingAlarms(
                 settings,
-                dev.programmerq.bruneiazan.shared.api.PrayerDay("", today.toString(), "", "", emptyList()),
+                PrayerDay("", today.toString(), "", "", emptyList()),
                 tomorrowDay,
                 ZonedDateTime.now(BRUNEI_ZONE),
             ).firstOrNull()
@@ -36,4 +45,7 @@ object Rescheduler {
             AlarmScheduler.cancel(context, AlarmReceiver::class.java)
         }
     }
+
+    private fun cached(cache: MonthCache, district: String, date: LocalDate): PrayerDay? =
+        cache.get(district, YearMonth.from(date))?.firstOrNull { it.dateIso == date.toString() }
 }

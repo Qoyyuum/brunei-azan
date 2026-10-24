@@ -27,7 +27,9 @@ object AlarmScheduler {
                 receiverPi,
             )
         } else {
-            alarmManager.setExactAndAllowWhileIdle(
+            // Inexact fallback needs no exact-alarm permission (setExact*
+            // would throw too).
+            alarmManager.setAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 alarm.triggerAtMillis,
                 receiverPi,

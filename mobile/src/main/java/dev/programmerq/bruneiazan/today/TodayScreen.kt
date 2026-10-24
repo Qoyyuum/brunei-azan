@@ -50,6 +50,7 @@ fun TodayScreen(app: AppState, settings: Settings) {
         app.scope.launch {
             loading = true
             val today = LocalDate.now(BRUNEI_ZONE)
+            app.repository.refreshMonth(today, settings.district.apiKey)
             day = app.repository.day(today, settings.district.apiKey)
             tomorrow = app.repository.day(today.plusDays(1), settings.district.apiKey)
             loading = false

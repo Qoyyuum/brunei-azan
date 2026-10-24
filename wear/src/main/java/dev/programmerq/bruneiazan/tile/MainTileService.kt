@@ -29,6 +29,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 private const val RESOURCES_VERSION = "0"
 private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
@@ -56,7 +58,10 @@ private fun cachedDays(context: Context, district: String): Pair<PrayerDay?, Pra
 }
 
 private fun tile(requestParams: RequestBuilders.TileRequest, context: Context): TileBuilders.Tile {
-    val (today, tomorrow) = cachedDays(context, "brunei-muara")
+    val district = runBlocking {
+        dev.programmerq.bruneiazan.shared.settings.SettingsStore(context).settings.first().district.apiKey
+    }
+    val (today, tomorrow) = cachedDays(context, district)
     val now = LocalTime.now(BRUNEI_ZONE)
     val next = today?.let { nextPrayer(it, tomorrow, now) }
 

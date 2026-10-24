@@ -23,6 +23,8 @@ class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val label = intent.getStringExtra(AlarmScheduler.EXTRA_LABEL) ?: "Prayer time"
+        val key = intent.getStringExtra(AlarmScheduler.EXTRA_KEY)
+        val isCustom = intent.getBooleanExtra(AlarmScheduler.EXTRA_CUSTOM, false)
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -40,7 +42,19 @@ class AlarmReceiver : BroadcastReceiver() {
                     )
                 }
             } finally {
-                Rescheduler.schedule(context)
+                runCatching {
+                    if (isCustom) {
+                        key?.let { id ->
+                            val app2 = WearAppState(context)
+                            app2.settingsStore.update { st ->
+                                st.copy(customAlarms = st.customAlarms.map {
+                                    if (it.id == id) it.copy(enabled = false) else it
+                                })
+                            }
+                        }
+                    }
+                }
+                runCatching { Rescheduler.schedule(context) }
                 pending.finish()
             }
         }
@@ -88,7 +102,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val soundUri = soundUri(context, sound)
         val existing = nm.getNotificationChannel(CHANNEL_ID)
         if (existing != null &&
-            (existing.sound != soundUri || (vibrate && !existing.shouldVibrate()))
+            (existing.sound != soundUri || existing.shouldVibrate() != vibrate)
         ) {
             nm.deleteNotificationChannel(CHANNEL_ID)
         }

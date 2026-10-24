@@ -26,7 +26,9 @@ class MonthCache(private val dir: File) {
 
     fun put(district: String, yearMonth: YearMonth, days: List<PrayerDay>) {
         dir.mkdirs()
-        file(district, yearMonth).writeText(json.encodeToString(serializer, days))
+        runCatching {
+            file(district, yearMonth).writeText(json.encodeToString(serializer, days))
+        }
     }
 
     fun day(district: String, dateIso: String): PrayerDay? {
