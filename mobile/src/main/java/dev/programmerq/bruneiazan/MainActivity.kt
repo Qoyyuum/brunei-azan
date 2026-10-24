@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.programmerq.bruneiazan.shared.settings.DarkMode
 import dev.programmerq.bruneiazan.shared.settings.Settings
+import dev.programmerq.bruneiazan.today.TodayScreen
 import dev.programmerq.bruneiazan.ui.theme.BruneiAzanTheme
 
 class MainActivity : ComponentActivity() {
@@ -58,7 +59,7 @@ fun AppShell(app: AppState, settings: Settings) {
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when (tab) {
-                0 -> StubScreen("Today")
+                0 -> TodayScreen(app, settings)
                 1 -> StubScreen("Alarms")
                 else -> StubScreen("Settings")
             }
