@@ -11,23 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.AppScaffold
-import androidx.wear.compose.material3.ButtonDefaults
-import androidx.wear.compose.material3.EdgeButton
-import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.ScreenScaffold
-import androidx.wear.compose.material3.Text
 import dev.programmerq.bruneiazan.BruneiAzanWearApp
 import dev.programmerq.bruneiazan.alarm.Rescheduler
 import dev.programmerq.bruneiazan.presentation.theme.BruneiAzanTheme
 import dev.programmerq.bruneiazan.shared.settings.Settings
-
-private val SCREEN_LABELS = listOf("Alarms", "Settings", "Times")
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,32 +50,25 @@ fun WearApp(app: WearAppState, settings: Settings) {
     LaunchedEffect(settings) {
         Rescheduler.schedule(app.appContext)
     }
-    var screen by rememberSaveable { mutableIntStateOf(0) }
-    // One list state per screen so scroll position doesn't bleed across tabs.
+    // Pages: Settings | Times | Alarms. Times lands first; swipe right for
+    // Settings, swipe left for Alarms. One list state per screen so scroll
+    // position doesn't bleed across pages.
+    val pagerState = rememberPagerState(initialPage = 1, pageCount = { 3 })
     val listStates = listOf(
         rememberTransformingLazyColumnState(),
         rememberTransformingLazyColumnState(),
         rememberTransformingLazyColumnState(),
     )
     AppScaffold {
-        ScreenScaffold(
-            scrollState = listStates[screen],
-            edgeButton = {
-                EdgeButton(
-                    onClick = { screen = (screen + 1) % 3 },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-                ) {
-                    Text(SCREEN_LABELS[screen])
+        HorizontalPagerScaffold(pagerState = pagerState) {
+            HorizontalPager(state = pagerState) { page ->
+                ScreenScaffold(scrollState = listStates[page]) {
+                    when (page) {
+                        0 -> SettingsScreen(app, settings, listStates[0])
+                        1 -> PrayerListScreen(app, settings, listStates[1])
+                        else -> AlarmsScreen(app, settings, listStates[2])
+                    }
                 }
-            },
-        ) {
-            when (screen) {
-                0 -> PrayerListScreen(app, settings, listStates[0])
-                1 -> AlarmsScreen(app, settings, listStates[1])
-                else -> SettingsScreen(app, settings, listStates[2])
             }
         }
     }
