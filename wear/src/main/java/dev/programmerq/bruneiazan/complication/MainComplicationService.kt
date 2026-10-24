@@ -23,7 +23,7 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         if (type != ComplicationType.SHORT_TEXT) return null
-        return complication("Suboh 04:47", "Suboh")
+        return complication("04:47", "Suboh")
     }
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
@@ -40,12 +40,21 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
         val tomorrowDay = cache.get(district, YearMonth.from(tomorrow))
             ?.firstOrNull { it.dateIso == tomorrow.toString() }
         val next = nextPrayer(todayDay, tomorrowDay, LocalTime.now(BRUNEI_ZONE)) ?: return null
-        return complication("${next.item.name} ${next.item.time24}", "Next prayer: ${next.item.name}")
+        return complication(next.item.time24, next.item.name)
     }
 
-    private fun complication(text: String, description: String) =
+    /**
+     * SHORT_TEXT with the prayer name in the title slot and the time as the
+     * main text — two short fields the watch face can lay out instead of one
+     * long string that gets truncated ("IMSAK 0...").
+     */
+    private fun complication(time: String, name: String) =
         ShortTextComplicationData.Builder(
-            text = PlainComplicationText.Builder(text).build(),
-            contentDescription = PlainComplicationText.Builder(description).build(),
-        ).build()
+            text = PlainComplicationText.Builder(time).build(),
+            contentDescription = PlainComplicationText
+                .Builder("Next prayer: $name at $time")
+                .build(),
+        )
+            .setTitle(PlainComplicationText.Builder(name).build())
+            .build()
 }
