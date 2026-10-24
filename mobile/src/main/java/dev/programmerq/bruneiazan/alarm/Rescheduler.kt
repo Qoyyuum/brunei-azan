@@ -1,7 +1,7 @@
 package dev.programmerq.bruneiazan.alarm
 
 import android.content.Context
-import dev.programmerq.bruneiazan.AppState
+import dev.programmerq.bruneiazan.BruneiAzanApp
 import dev.programmerq.bruneiazan.shared.alarms.AlarmPlanner
 import dev.programmerq.bruneiazan.shared.alarms.AlarmScheduler
 import dev.programmerq.bruneiazan.shared.api.PrayerDay
@@ -11,7 +11,9 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 
 private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
 
@@ -23,8 +25,8 @@ private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
  */
 object Rescheduler {
 
-    suspend fun schedule(context: Context) {
-        val app = AppState(context)
+    suspend fun schedule(context: Context) = withContext(Dispatchers.IO) {
+        val app = (context.applicationContext as BruneiAzanApp).appState
         val settings = app.settings.first()
         val cache = MonthCache(File(context.filesDir, "months"))
         val district = settings.district.apiKey

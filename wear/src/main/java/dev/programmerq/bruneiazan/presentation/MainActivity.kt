@@ -1,8 +1,11 @@
 package dev.programmerq.bruneiazan.presentation
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -18,6 +21,7 @@ import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
+import dev.programmerq.bruneiazan.BruneiAzanWearApp
 import dev.programmerq.bruneiazan.alarm.Rescheduler
 import dev.programmerq.bruneiazan.presentation.theme.BruneiAzanTheme
 import dev.programmerq.bruneiazan.shared.settings.DarkMode
@@ -28,8 +32,7 @@ private val SCREEN_LABELS = listOf("Alarms", "Settings", "Times")
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val app = WearAppState(this)
-        app.startSync()
+        val app = (application as BruneiAzanWearApp).appState
         setContent {
             val settings by app.settings.collectAsState(Settings.DEFAULT)
             BruneiAzanTheme(
@@ -44,15 +47,26 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WearApp(app: WearAppState, settings: Settings) {
+    val notifPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { }
+    LaunchedEffect(Unit) {
+        notifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
     // Reschedule the next alarm whenever settings change (and on first launch).
     LaunchedEffect(settings) {
         Rescheduler.schedule(app.appContext)
     }
     var screen by rememberSaveable { mutableIntStateOf(0) }
-    val listState = rememberTransformingLazyColumnState()
+    // One list state per screen so scroll position doesn't bleed across tabs.
+    val listStates = listOf(
+        rememberTransformingLazyColumnState(),
+        rememberTransformingLazyColumnState(),
+        rememberTransformingLazyColumnState(),
+    )
     AppScaffold {
         ScreenScaffold(
-            scrollState = listState,
+            scrollState = listStates[screen],
             edgeButton = {
                 EdgeButton(
                     onClick = { screen = (screen + 1) % 3 },
@@ -66,9 +80,9 @@ fun WearApp(app: WearAppState, settings: Settings) {
             },
         ) {
             when (screen) {
-                0 -> PrayerListScreen(app, settings, listState)
-                1 -> AlarmsScreen(app, settings, listState)
-                else -> SettingsScreen(app, settings, listState)
+                0 -> PrayerListScreen(app, settings, listStates[0])
+                1 -> AlarmsScreen(app, settings, listStates[1])
+                else -> SettingsScreen(app, settings, listStates[2])
             }
         }
     }

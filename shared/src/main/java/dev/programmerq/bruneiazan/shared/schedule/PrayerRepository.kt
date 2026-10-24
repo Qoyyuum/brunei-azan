@@ -19,9 +19,13 @@ class PrayerRepository(
 
     suspend fun day(date: LocalDate, district: String): PrayerDay? {
         val ym = YearMonth.from(date)
-        cache.get(district, ym)?.let { days ->
-            days.firstOrNull { it.dateIso == date.toString() }?.let { return it }
-        }
+        val days = cache.get(district, ym)
+        days?.firstOrNull { it.dateIso == date.toString() }?.let { return it }
+        // A recently fetched month that doesn't contain the date means the API
+        // doesn't publish that day — trust the coverage instead of refetching
+        // on every call. Stale files are refetched in case coverage grew.
+        val age = cache.fileAgeMillis(district, ym)
+        if (days != null && age != null && age < FRESH_MILLIS) return null
         return when (val r = refreshMonth(date, district)) {
             is ApiResult.Ok -> r.value.firstOrNull { it.dateIso == date.toString() }
             is ApiResult.Err -> null
@@ -37,5 +41,9 @@ class PrayerRepository(
             }
             is ApiResult.Err -> r
         }
+    }
+
+    private companion object {
+        const val FRESH_MILLIS = 24 * 60 * 60 * 1000L
     }
 }

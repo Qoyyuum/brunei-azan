@@ -24,10 +24,19 @@ class SettingsStore(private val context: Context) {
         }
     }
 
-    /** Applies a settings JSON received over the Data Layer. */
+    /**
+     * Applies a settings JSON received over the Data Layer. Skips corrupt
+     * payloads and no-op writes — both would otherwise emit downstream and
+     * echo the value straight back to the peer that sent it.
+     */
     suspend fun apply(json: String) {
-        val decoded = SettingsCodec.decode(json)
-        update { decoded }
+        val decoded = SettingsCodec.decodeOrNull(json) ?: return
+        context.settingsDataStore.edit { prefs ->
+            val current = prefs[key]?.let { SettingsCodec.decode(it) } ?: Settings.DEFAULT
+            if (decoded != current) {
+                prefs[key] = SettingsCodec.encode(decoded)
+            }
+        }
     }
 
     suspend fun setDistrict(d: District) = update { it.copy(district = d) }

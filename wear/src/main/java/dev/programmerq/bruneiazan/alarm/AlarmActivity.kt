@@ -21,15 +21,18 @@ import androidx.lifecycle.lifecycleScope
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
-import dev.programmerq.bruneiazan.presentation.WearAppState
+import dev.programmerq.bruneiazan.BruneiAzanWearApp
 import dev.programmerq.bruneiazan.presentation.theme.BruneiAzanTheme
 import dev.programmerq.bruneiazan.shared.alarms.AlarmScheduler
 import dev.programmerq.bruneiazan.shared.settings.AlarmSound
 import dev.programmerq.bruneiazan.shared.settings.DarkMode
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
+private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
 
 class AlarmActivity : ComponentActivity() {
 
@@ -43,7 +46,11 @@ class AlarmActivity : ComponentActivity() {
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         val label = intent.getStringExtra(AlarmScheduler.EXTRA_LABEL) ?: "Prayer time"
-        val app = WearAppState(this)
+        val app = (application as BruneiAzanWearApp).appState
+        // The alarm UI is now up — remove the notification so its channel
+        // sound doesn't play over the looping MediaPlayer.
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            .cancel(AlarmReceiver.NOTIFICATION_ID)
 
         lifecycleScope.launch {
             val settings = app.settings.first()
@@ -106,7 +113,7 @@ private fun AlarmContent(label: String, onDismiss: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")),
+                LocalTime.now(BRUNEI_ZONE).format(DateTimeFormatter.ofPattern("HH:mm")),
                 style = MaterialTheme.typography.displayMedium,
             )
             androidx.wear.compose.material3.Button(

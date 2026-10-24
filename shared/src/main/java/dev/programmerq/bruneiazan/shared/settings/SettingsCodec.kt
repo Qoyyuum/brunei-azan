@@ -43,7 +43,10 @@ object SettingsCodec {
         ),
     )
 
-    fun decode(body: String): Settings = runCatching {
+    fun decode(body: String): Settings = decodeOrNull(body) ?: Settings.DEFAULT
+
+    /** Strict decode — null on any parse failure instead of silently defaulting. */
+    fun decodeOrNull(body: String): Settings? = runCatching {
         val d = json.decodeFromString(Dto.serializer(), body)
         Settings(
             district = District.entries.firstOrNull { it.apiKey == d.district }
@@ -60,5 +63,5 @@ object SettingsCodec {
                 CustomAlarm(it.id, it.hour, it.minute, it.label, it.enabled)
             },
         )
-    }.getOrDefault(Settings.DEFAULT)
+    }.getOrNull()
 }

@@ -63,7 +63,7 @@ fun AlarmsScreen(app: AppState, settings: Settings) {
 
     fun playPreview(resId: Int) {
         preview?.release()
-        preview = MediaPlayer.create(context, resId).apply { start() }
+        preview = MediaPlayer.create(context, resId)?.apply { start() }
     }
 
     Column(

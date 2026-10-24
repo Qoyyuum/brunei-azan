@@ -22,6 +22,7 @@ import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
+import dev.programmerq.bruneiazan.alarm.Rescheduler
 import dev.programmerq.bruneiazan.shared.api.PrayerDay
 import dev.programmerq.bruneiazan.shared.schedule.nextPrayer
 import dev.programmerq.bruneiazan.shared.settings.Settings
@@ -44,6 +45,10 @@ fun PrayerListScreen(app: WearAppState, settings: Settings, listState: Transform
             day = app.repository.day(today, settings.district.apiKey)
             tomorrow = app.repository.day(today.plusDays(1), settings.district.apiKey)
             loading = false
+            // Reschedule now that the month cache reflects this district —
+            // the settings-change reschedule in WearApp races the first
+            // fetch and would otherwise register nothing on first run.
+            Rescheduler.schedule(app.appContext)
         }
     }
 

@@ -4,8 +4,8 @@ import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.WearableListenerService
+import dev.programmerq.bruneiazan.BruneiAzanApp
 import dev.programmerq.bruneiazan.alarm.Rescheduler
-import dev.programmerq.bruneiazan.shared.settings.SettingsStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -29,7 +29,8 @@ class SyncListenerService : WearableListenerService() {
                     continue
                 }
                 scope.launch {
-                    SettingsStore(this@SyncListenerService).apply(json)
+                    val app = (applicationContext as BruneiAzanApp).appState
+                    app.settingsStore.apply(json)
                     Rescheduler.schedule(this@SyncListenerService)
                 }
             }

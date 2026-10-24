@@ -14,6 +14,7 @@ object AlarmScheduler {
     const val EXTRA_KEY = "dev.programmerq.bruneiazan.extra.ALARM_KEY"
     const val EXTRA_LABEL = "dev.programmerq.bruneiazan.extra.ALARM_LABEL"
     const val EXTRA_CUSTOM = "dev.programmerq.bruneiazan.extra.ALARM_CUSTOM"
+    const val EXTRA_TRIGGER_MILLIS = "dev.programmerq.bruneiazan.extra.ALARM_TRIGGER_MILLIS"
 
     fun registerNext(context: Context, receiverClass: Class<*>, alarm: AlarmInstance) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -48,6 +49,7 @@ object AlarmScheduler {
                 putExtra(EXTRA_KEY, alarm.key)
                 putExtra(EXTRA_LABEL, alarm.label)
                 putExtra(EXTRA_CUSTOM, alarm.isCustom)
+                putExtra(EXTRA_TRIGGER_MILLIS, alarm.triggerAtMillis)
             }
         }
         return PendingIntent.getBroadcast(
@@ -58,9 +60,9 @@ object AlarmScheduler {
         )
     }
 
-    private fun appOpenIntent(context: Context): PendingIntent {
+    private fun appOpenIntent(context: Context): PendingIntent? {
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-            ?: Intent()
+            ?: return null
         return PendingIntent.getActivity(
             context,
             REQUEST_CODE,

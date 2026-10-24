@@ -8,17 +8,21 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
-import android.media.RingtoneManager
 import android.net.Uri
 import androidx.core.app.NotificationCompat
-import dev.programmerq.bruneiazan.AppState
+import dev.programmerq.bruneiazan.BruneiAzanApp
 import dev.programmerq.bruneiazan.R
 import dev.programmerq.bruneiazan.shared.alarms.AlarmScheduler
 import dev.programmerq.bruneiazan.shared.settings.AlarmSound
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
+private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
 
 class AlarmReceiver : BroadcastReceiver() {
 
@@ -26,28 +30,50 @@ class AlarmReceiver : BroadcastReceiver() {
         val label = intent.getStringExtra(AlarmScheduler.EXTRA_LABEL) ?: "Prayer time"
         val key = intent.getStringExtra(AlarmScheduler.EXTRA_KEY)
         val isCustom = intent.getBooleanExtra(AlarmScheduler.EXTRA_CUSTOM, false)
+        val triggerAt = intent.getLongExtra(AlarmScheduler.EXTRA_TRIGGER_MILLIS, -1L)
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val app = AppState(context)
+                val app = (context.applicationContext as BruneiAzanApp).appState
                 val settings = app.settings.first()
                 postAlarmNotification(context, label, settings.alarmSound, settings.vibration)
             } finally {
-                runCatching {
-                    if (isCustom) {
-                        key?.let { id ->
-                            val app2 = AppState(context)
-                            app2.settingsStore.update { st ->
-                                st.copy(customAlarms = st.customAlarms.map {
-                                    if (it.id == id) it.copy(enabled = false) else it
-                                })
-                            }
-                        }
-                    }
-                }
+                runCatching { disableFiredCustoms(context, key, isCustom, triggerAt) }
                 runCatching { Rescheduler.schedule(context) }
                 pending.finish()
             }
+        }
+    }
+
+    /**
+     * One-off customs never re-arm. Disable the one that fired plus every
+     * enabled custom whose instant collides with it — the planner registers a
+     * single PendingIntent, so colliding customs would otherwise stay enabled
+     * and fire a day late.
+     */
+    private suspend fun disableFiredCustoms(
+        context: Context,
+        key: String?,
+        isCustom: Boolean,
+        triggerAt: Long,
+    ) {
+        val app = (context.applicationContext as BruneiAzanApp).appState
+        val today = LocalDate.now(BRUNEI_ZONE)
+        app.settingsStore.update { st ->
+            st.copy(
+                customAlarms = st.customAlarms.map { c ->
+                    val todayMillis = today
+                        .atTime(LocalTime.of(c.hour, c.minute))
+                        .atZone(BRUNEI_ZONE)
+                        .toInstant()
+                        .toEpochMilli()
+                    if (c.enabled && ((isCustom && c.id == key) || todayMillis == triggerAt)) {
+                        c.copy(enabled = false)
+                    } else {
+                        c
+                    }
+                },
+            )
         }
     }
 

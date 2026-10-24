@@ -6,10 +6,13 @@ import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
-import dev.programmerq.bruneiazan.presentation.WearAppState
+import dev.programmerq.bruneiazan.BruneiAzanWearApp
+import dev.programmerq.bruneiazan.shared.schedule.MonthCache
 import dev.programmerq.bruneiazan.shared.schedule.nextPrayer
+import java.io.File
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
 import java.time.ZoneId
 import kotlinx.coroutines.flow.first
 
@@ -24,11 +27,18 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
     }
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
-        val app = WearAppState(this)
+        val app = (applicationContext as BruneiAzanWearApp).appState
         val settings = app.settings.first()
+        // Cache-only like the tile — a complication request must never block
+        // on the network.
+        val cache = MonthCache(File(filesDir, "months"))
+        val district = settings.district.apiKey
         val today = LocalDate.now(BRUNEI_ZONE)
-        val todayDay = app.repository.day(today, settings.district.apiKey) ?: return null
-        val tomorrowDay = app.repository.day(today.plusDays(1), settings.district.apiKey)
+        val tomorrow = today.plusDays(1)
+        val todayDay = cache.get(district, YearMonth.from(today))
+            ?.firstOrNull { it.dateIso == today.toString() } ?: return null
+        val tomorrowDay = cache.get(district, YearMonth.from(tomorrow))
+            ?.firstOrNull { it.dateIso == tomorrow.toString() }
         val next = nextPrayer(todayDay, tomorrowDay, LocalTime.now(BRUNEI_ZONE)) ?: return null
         return complication("${next.item.name} ${next.item.time24}", "Next prayer: ${next.item.name}")
     }

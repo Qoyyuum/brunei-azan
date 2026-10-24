@@ -20,10 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.programmerq.bruneiazan.AppState
+import dev.programmerq.bruneiazan.alarm.Rescheduler
 import dev.programmerq.bruneiazan.shared.api.PrayerDay
 import dev.programmerq.bruneiazan.shared.api.ScheduleItem
 import dev.programmerq.bruneiazan.shared.schedule.NextPrayer
@@ -41,6 +43,7 @@ private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
 
 @Composable
 fun TodayScreen(app: AppState, settings: Settings) {
+    val context = LocalContext.current
     var day by remember { mutableStateOf<PrayerDay?>(null) }
     var tomorrow by remember { mutableStateOf<PrayerDay?>(null) }
     var loading by remember { mutableStateOf(true) }
@@ -54,6 +57,10 @@ fun TodayScreen(app: AppState, settings: Settings) {
             day = app.repository.day(today, settings.district.apiKey)
             tomorrow = app.repository.day(today.plusDays(1), settings.district.apiKey)
             loading = false
+            // Reschedule now that the month cache reflects this district —
+            // the settings-change reschedule in AppShell races the first
+            // fetch and would otherwise register nothing on first run.
+            Rescheduler.schedule(context)
         }
     }
 

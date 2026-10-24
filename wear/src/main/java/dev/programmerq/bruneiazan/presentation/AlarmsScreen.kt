@@ -57,6 +57,16 @@ fun AlarmsScreen(app: WearAppState, settings: Settings, listState: TransformingL
                     }
                 }
             }
+            item {
+                Button(
+                    onClick = {
+                        app.scope.launch { app.settingsStore.removeCustomAlarm(alarm.id) }
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                ) {
+                    Text("Delete", style = MaterialTheme.typography.bodyMedium)
+                }
+            }
         }
         item {
             ListHeader(modifier = Modifier.fillMaxWidth()) { Text("Sound") }

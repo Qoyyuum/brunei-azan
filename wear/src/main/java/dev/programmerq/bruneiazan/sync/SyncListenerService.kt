@@ -3,9 +3,12 @@ package dev.programmerq.bruneiazan.sync
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
+import android.content.ComponentName
 import com.google.android.gms.wearable.WearableListenerService
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
+import dev.programmerq.bruneiazan.BruneiAzanWearApp
 import dev.programmerq.bruneiazan.alarm.Rescheduler
-import dev.programmerq.bruneiazan.shared.settings.SettingsStore
+import dev.programmerq.bruneiazan.complication.MainComplicationService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,8 +31,18 @@ class SyncListenerService : WearableListenerService() {
                     continue
                 }
                 scope.launch {
-                    SettingsStore(this@SyncListenerService).apply(json)
+                    val app = (applicationContext as BruneiAzanWearApp).appState
+                    app.settingsStore.apply(json)
                     Rescheduler.schedule(this@SyncListenerService)
+                    ComplicationDataSourceUpdateRequester
+                        .create(
+                            this@SyncListenerService,
+                            ComponentName(
+                                this@SyncListenerService,
+                                MainComplicationService::class.java,
+                            ),
+                        )
+                        .requestUpdateAll()
                 }
             }
         }

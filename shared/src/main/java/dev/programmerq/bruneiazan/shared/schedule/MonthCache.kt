@@ -24,6 +24,13 @@ class MonthCache(private val dir: File) {
         return runCatching { json.decodeFromString(serializer, f.readText()) }.getOrNull()
     }
 
+    /** Age of the cache file in millis, or null when there is no file. */
+    fun fileAgeMillis(district: String, yearMonth: YearMonth): Long? {
+        val f = file(district, yearMonth)
+        if (!f.isFile) return null
+        return System.currentTimeMillis() - f.lastModified()
+    }
+
     fun put(district: String, yearMonth: YearMonth, days: List<PrayerDay>) {
         dir.mkdirs()
         runCatching {
