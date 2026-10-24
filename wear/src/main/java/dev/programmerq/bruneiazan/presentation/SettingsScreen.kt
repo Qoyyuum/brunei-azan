@@ -1,5 +1,6 @@
 package dev.programmerq.bruneiazan.presentation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -20,7 +21,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(app: WearAppState, settings: Settings, listState: TransformingLazyColumnState) {
-    TransformingLazyColumn(state = listState, modifier = Modifier.padding(horizontal = 10.dp)) {
+    TransformingLazyColumn(
+        state = listState,
+        modifier = Modifier.padding(horizontal = 10.dp),
+        contentPadding = PaddingValues(bottom = 56.dp),
+    ) {
         item {
             ListHeader(modifier = Modifier.fillMaxWidth()) { Text("District") }
         }

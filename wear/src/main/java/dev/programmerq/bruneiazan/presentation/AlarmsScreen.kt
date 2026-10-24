@@ -3,6 +3,7 @@ package dev.programmerq.bruneiazan.presentation
 import android.media.MediaPlayer
 import android.os.VibrationEffect
 import android.os.Vibrator
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -83,7 +84,11 @@ fun AlarmsScreen(app: WearAppState, settings: Settings, listState: TransformingL
         }
     }
 
-    TransformingLazyColumn(state = listState, modifier = Modifier.padding(horizontal = 10.dp)) {
+    TransformingLazyColumn(
+        state = listState,
+        modifier = Modifier.padding(horizontal = 10.dp),
+        contentPadding = PaddingValues(bottom = 56.dp),
+    ) {
         item {
             ListHeader(modifier = Modifier.fillMaxWidth()) { Text("Alarms") }
         }

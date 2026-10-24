@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -54,7 +55,11 @@ fun PrayerListScreen(app: WearAppState, settings: Settings, listState: Transform
 
     val next = day?.let { nextPrayer(it, tomorrow, LocalTime.now(BRUNEI_ZONE)) }
 
-    TransformingLazyColumn(state = listState, modifier = Modifier.padding(horizontal = 10.dp)) {
+    TransformingLazyColumn(
+        state = listState,
+        modifier = Modifier.padding(horizontal = 10.dp),
+        contentPadding = PaddingValues(bottom = 56.dp),
+    ) {
         item {
             ListHeader(modifier = Modifier.fillMaxWidth()) {
                 Text(
