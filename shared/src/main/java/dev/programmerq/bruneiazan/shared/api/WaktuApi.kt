@@ -10,7 +10,7 @@ import okhttp3.Request
 internal fun monthParam(year: Int, month: Int): String = "%02d/%04d".format(month, year)
 
 /** Injectable month fetcher so PrayerRepository stays unit-testable. */
-interface MonthApi {
+fun interface MonthApi {
     suspend fun fetchMonth(year: Int, month: Int, district: String): ApiResult<List<PrayerDay>>
 }
 
