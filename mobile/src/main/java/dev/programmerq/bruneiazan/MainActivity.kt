@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val app = AppState(this)
+        app.startSync()
         enableEdgeToEdge()
         setContent {
             val settings by app.settings.collectAsStateWithLifecycle(Settings.DEFAULT)
