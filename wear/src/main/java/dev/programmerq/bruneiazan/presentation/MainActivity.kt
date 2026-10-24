@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -17,6 +18,7 @@ import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
+import dev.programmerq.bruneiazan.alarm.Rescheduler
 import dev.programmerq.bruneiazan.presentation.theme.BruneiAzanTheme
 import dev.programmerq.bruneiazan.shared.settings.DarkMode
 import dev.programmerq.bruneiazan.shared.settings.Settings
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val app = WearAppState(this)
+        app.startSync()
         setContent {
             val settings by app.settings.collectAsState(Settings.DEFAULT)
             BruneiAzanTheme(
@@ -41,6 +44,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WearApp(app: WearAppState, settings: Settings) {
+    // Reschedule the next alarm whenever settings change (and on first launch).
+    LaunchedEffect(settings) {
+        Rescheduler.schedule(app.appContext)
+    }
     var screen by rememberSaveable { mutableIntStateOf(0) }
     val listState = rememberTransformingLazyColumnState()
     AppScaffold {
