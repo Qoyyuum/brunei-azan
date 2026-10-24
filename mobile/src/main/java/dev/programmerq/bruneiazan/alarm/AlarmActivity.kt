@@ -9,6 +9,7 @@ import android.os.Vibrator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +25,6 @@ import androidx.lifecycle.lifecycleScope
 import dev.programmerq.bruneiazan.BruneiAzanApp
 import dev.programmerq.bruneiazan.shared.alarms.AlarmScheduler
 import dev.programmerq.bruneiazan.shared.settings.AlarmSound
-import dev.programmerq.bruneiazan.shared.settings.DarkMode
 import dev.programmerq.bruneiazan.ui.theme.BruneiAzanTheme
 import java.time.LocalTime
 import java.time.ZoneId
@@ -57,7 +57,7 @@ class AlarmActivity : ComponentActivity() {
             startAlarm(settings.alarmSound, settings.vibration)
             setContent {
                 BruneiAzanTheme(
-                    dark = settings.darkMode == DarkMode.DARK,
+                    dark = settings.darkMode.isDark(isSystemInDarkTheme()),
                     font = settings.font,
                 ) {
                     AlarmContent(label, onDismiss = { finish() })

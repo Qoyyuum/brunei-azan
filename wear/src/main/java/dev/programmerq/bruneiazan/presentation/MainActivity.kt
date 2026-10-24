@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -24,7 +25,6 @@ import androidx.wear.compose.material3.Text
 import dev.programmerq.bruneiazan.BruneiAzanWearApp
 import dev.programmerq.bruneiazan.alarm.Rescheduler
 import dev.programmerq.bruneiazan.presentation.theme.BruneiAzanTheme
-import dev.programmerq.bruneiazan.shared.settings.DarkMode
 import dev.programmerq.bruneiazan.shared.settings.Settings
 
 private val SCREEN_LABELS = listOf("Alarms", "Settings", "Times")
@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val settings by app.settings.collectAsState(Settings.DEFAULT)
             BruneiAzanTheme(
-                dark = settings.darkMode == DarkMode.DARK,
+                dark = settings.darkMode.isDark(isSystemInDarkTheme()),
                 font = settings.font,
             ) {
                 WearApp(app, settings)

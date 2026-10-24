@@ -7,7 +7,17 @@ enum class District(val apiKey: String, val label: String) {
     TEMBURONG("temburong", "Temburong"),
 }
 
-enum class DarkMode { LIGHT, DARK }
+enum class DarkMode(val label: String) {
+    SYSTEM("Follow system"),
+    LIGHT("Light"),
+    DARK("Dark");
+
+    fun isDark(systemDark: Boolean): Boolean = when (this) {
+        SYSTEM -> systemDark
+        LIGHT -> false
+        DARK -> true
+    }
+}
 
 enum class AppFont(val label: String) { SANS("Sans"), SERIF("Serif"), MONO("Monospace") }
 
@@ -33,7 +43,7 @@ data class Settings(
     companion object {
         val DEFAULT = Settings(
             district = District.BRUNEI_MUARA,
-            darkMode = DarkMode.LIGHT,
+            darkMode = DarkMode.SYSTEM,
             font = AppFont.SANS,
             alarmSound = AlarmSound.AZAN,
             vibration = true,

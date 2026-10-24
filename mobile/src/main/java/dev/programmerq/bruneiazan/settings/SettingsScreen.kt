@@ -40,7 +40,7 @@ fun SettingsScreen(app: AppState, settings: Settings) {
         SectionHeader("Appearance")
         DarkMode.entries.forEach { mode ->
             RadioRow(
-                label = if (mode == DarkMode.LIGHT) "Light" else "Dark",
+                label = mode.label,
                 selected = settings.darkMode == mode,
                 onClick = { app.scope.launch { app.settingsStore.setDarkMode(mode) } },
             )

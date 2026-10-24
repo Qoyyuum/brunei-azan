@@ -1,5 +1,7 @@
 package dev.programmerq.bruneiazan.watchface
 
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -13,7 +15,6 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import dev.programmerq.bruneiazan.shared.schedule.nextPrayer
 import dev.programmerq.bruneiazan.shared.settings.AppFont
-import dev.programmerq.bruneiazan.shared.settings.DarkMode
 import java.time.Duration
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -51,7 +52,9 @@ class PaperRenderer(
     override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime, sharedAssets: Shared) {
         val ambient = renderParameters.drawMode == DrawMode.AMBIENT
         val settings = faceState.settings.get()
-        val dark = ambient || settings.darkMode == DarkMode.DARK
+        val systemDark = Resources.getSystem().configuration.uiMode and
+            Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        val dark = ambient || settings.darkMode.isDark(systemDark)
 
         val bg = if (dark) PAPER_DARK else PAPER
         val ink = if (dark) INK_LIGHT else INK

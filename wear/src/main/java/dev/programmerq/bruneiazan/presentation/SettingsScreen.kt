@@ -44,8 +44,7 @@ fun SettingsScreen(app: WearAppState, settings: Settings, listState: Transformin
                     modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
                 ) {
                     Text(
-                        "${if (settings.darkMode == mode) "●" else "○"} " +
-                            if (mode == DarkMode.LIGHT) "Light" else "Dark",
+                        "${if (settings.darkMode == mode) "●" else "○"} ${mode.label}",
                     )
                 }
             }
