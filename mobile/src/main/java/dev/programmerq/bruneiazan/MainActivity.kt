@@ -28,6 +28,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.programmerq.bruneiazan.alarms.AlarmsScreen
+import dev.programmerq.bruneiazan.settings.SettingsScreen
 import dev.programmerq.bruneiazan.shared.settings.DarkMode
 import dev.programmerq.bruneiazan.shared.settings.Settings
 import dev.programmerq.bruneiazan.today.TodayScreen
@@ -60,21 +62,10 @@ fun AppShell(app: AppState, settings: Settings) {
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when (tab) {
                 0 -> TodayScreen(app, settings)
-                1 -> StubScreen("Alarms")
-                else -> StubScreen("Settings")
+                1 -> AlarmsScreen(app, settings)
+                else -> SettingsScreen(app, settings)
             }
         }
-    }
-}
-
-@Composable
-private fun StubScreen(label: String) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(label, style = MaterialTheme.typography.headlineMedium)
     }
 }
 
