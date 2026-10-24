@@ -2,10 +2,12 @@ package dev.programmerq.bruneiazan.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val PaperWhite = Color(0xFFFAFAF7)
+val InkBlack = Color(0xFF111111)
+val InkMuted = Color(0xFF6B6B66)
+val RuleLight = Color(0xFFE2E2DC)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val PaperDark = Color(0xFF0D0D0D)
+val InkWhite = Color(0xFFEDEDE8)
+val InkMutedDark = Color(0xFF9A9A93)
+val RuleDark = Color(0xFF2A2A27)
