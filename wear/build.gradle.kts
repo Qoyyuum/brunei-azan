@@ -13,7 +13,9 @@ android {
         applicationId = "dev.programmerq.bruneiazan"
         minSdk = 35
         targetSdk = 37
-        versionCode = 1
+        // Offset from mobile's versionCode — Play requires unique version
+        // codes across all artifacts in one app record, phone and watch.
+        versionCode = 10001
         versionName = "1.0"
 
     }
