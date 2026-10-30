@@ -1,0 +1,5 @@
+<resources>
+    <string name="watch_face_name">Brunei Azan</string>
+    <string name="next_prayer_label">Next prayer</string>
+    <string name="date_label">Date</string>
+</resources>

@@ -26,3 +26,4 @@ rootProject.name = "Brunei Azan"
 include(":mobile")
 include(":wear")
 include(":shared")
+include(":watchface")

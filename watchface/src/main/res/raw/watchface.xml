@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Brunei Azan watch face (Watch Face Format v1).
+
+  Paper aesthetic matching the app: light paper + black ink in interactive
+  mode, dark in ambient. Layout: big hh:mm time, thin rule, then a SHORT_TEXT
+  complication slot bound by default to the Brunei Azan "next prayer"
+  provider (falls back to the system day/date provider when the app is not
+  installed), and a small day/date slot near the bottom.
+-->
+<WatchFace width="450" height="450">
+    <Metadata key="CLOCK_TYPE" value="DIGITAL" />
+    <Metadata key="PREVIEW_TIME" value="12:12:00" />
+
+    <Scene backgroundColor="#FF0D0D0D">
+
+        <!-- Paper background (interactive only; ambient shows the dark base) -->
+        <PartDraw x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0" />
+            <Rectangle x="0" y="0" width="450" height="450">
+                <Fill color="#FFFAFAF7" />
+            </Rectangle>
+        </PartDraw>
+
+        <!-- Time -->
+        <DigitalClock x="0" y="0" width="450" height="450">
+            <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER"
+                x="0" y="140" width="450" height="110" alpha="255">
+                <Variant mode="AMBIENT" target="alpha" value="0" />
+                <Font family="SYNC_TO_DEVICE" size="105" weight="NORMAL" color="#FF111111" />
+            </TimeText>
+            <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER"
+                x="0" y="140" width="450" height="110" alpha="0">
+                <Variant mode="AMBIENT" target="alpha" value="255" />
+                <Font family="SYNC_TO_DEVICE" size="105" weight="NORMAL" color="#FFEDEDE8" />
+            </TimeText>
+        </DigitalClock>
+
+        <!-- Thin rule under the time -->
+        <PartDraw x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0" />
+            <Line x1="150" y1="258" x2="300" y2="258">
+                <Stroke thickness="2" color="#FF6B6B66" />
+            </Line>
+        </PartDraw>
+        <PartDraw x="0" y="0" width="450" height="450" alpha="0">
+            <Variant mode="AMBIENT" target="alpha" value="255" />
+            <Line x1="150" y1="258" x2="300" y2="258">
+                <Stroke thickness="2" color="#FF9A9A93" />
+            </Line>
+        </PartDraw>
+
+        <!-- Next prayer (Brunei Azan complication), fallback: day & date -->
+        <ComplicationSlot x="105" y="268" width="240" height="85" slotId="1"
+            displayName="next_prayer_label" supportedTypes="SHORT_TEXT EMPTY">
+            <DefaultProviderPolicy
+                primaryProvider="it.anak.bruneiazan/.complication.MainComplicationService"
+                primaryProviderType="SHORT_TEXT"
+                defaultSystemProvider="DAY_AND_DATE"
+                defaultSystemProviderType="SHORT_TEXT" />
+            <BoundingRoundBox x="0" y="0" width="240" height="85"
+                outlinePadding="2.0" cornerRadius="12" />
+            <Complication type="SHORT_TEXT">
+                <Condition>
+                    <Expressions>
+                        <Expression name="has_title"><![CDATA[[COMPLICATION.TITLE] != null]]></Expression>
+                    </Expressions>
+                    <Compare expression="has_title">
+                        <!-- Prayer name (e.g. "Asar") over the time -->
+                        <PartText x="0" y="10" width="240" height="28">
+                            <Text align="CENTER">
+                                <Font family="SYNC_TO_DEVICE" size="24" color="#FF6B6B66">
+                                    <Template><![CDATA[%s]]>
+                                        <Parameter expression="[COMPLICATION.TITLE]" />
+                                    </Template>
+                                </Font>
+                            </Text>
+                        </PartText>
+                        <PartText x="0" y="36" width="240" height="46">
+                            <Text align="CENTER">
+                                <Font family="SYNC_TO_DEVICE" size="38" color="#FF111111">
+                                    <Template><![CDATA[%s]]>
+                                        <Parameter expression="[COMPLICATION.TEXT]" />
+                                    </Template>
+                                </Font>
+                            </Text>
+                        </PartText>
+                        <!-- Ambient colours -->
+                        <PartText x="0" y="10" width="240" height="28" alpha="0">
+                            <Variant mode="AMBIENT" target="alpha" value="255" />
+                            <Text align="CENTER">
+                                <Font family="SYNC_TO_DEVICE" size="24" color="#FF9A9A93">
+                                    <Template><![CDATA[%s]]>
+                                        <Parameter expression="[COMPLICATION.TITLE]" />
+                                    </Template>
+                                </Font>
+                            </Text>
+                        </PartText>
+                        <PartText x="0" y="36" width="240" height="46" alpha="0">
+                            <Variant mode="AMBIENT" target="alpha" value="255" />
+                            <Text align="CENTER">
+                                <Font family="SYNC_TO_DEVICE" size="38" color="#FFEDEDE8">
+                                    <Template><![CDATA[%s]]>
+                                        <Parameter expression="[COMPLICATION.TEXT]" />
+                                    </Template>
+                                </Font>
+                            </Text>
+                        </PartText>
+                    </Compare>
+                    <Default>
+                        <!-- Provider with no title (e.g. day & date): single centred line -->
+                        <PartText x="0" y="20" width="240" height="45">
+                            <Text align="CENTER">
+                                <Font family="SYNC_TO_DEVICE" size="30" color="#FF111111">
+                                    <Template><![CDATA[%s]]>
+                                        <Parameter expression="[COMPLICATION.TEXT]" />
+                                    </Template>
+                                </Font>
+                            </Text>
+                        </PartText>
+                        <PartText x="0" y="20" width="240" height="45" alpha="0">
+                            <Variant mode="AMBIENT" target="alpha" value="255" />
+                            <Text align="CENTER">
+                                <Font family="SYNC_TO_DEVICE" size="30" color="#FFEDEDE8">
+                                    <Template><![CDATA[%s]]>
+                                        <Parameter expression="[COMPLICATION.TEXT]" />
+                                    </Template>
+                                </Font>
+                            </Text>
+                        </PartText>
+                    </Default>
+                </Condition>
+            </Complication>
+        </ComplicationSlot>
+
+        <!-- Date line (hidden in ambient) -->
+        <ComplicationSlot x="75" y="370" width="300" height="40" slotId="2"
+            displayName="date_label" supportedTypes="SHORT_TEXT EMPTY">
+            <DefaultProviderPolicy
+                defaultSystemProvider="DAY_AND_DATE"
+                defaultSystemProviderType="SHORT_TEXT" />
+            <BoundingRoundBox x="0" y="0" width="300" height="40"
+                outlinePadding="2.0" cornerRadius="8" />
+            <Complication type="SHORT_TEXT">
+                <PartText x="0" y="4" width="300" height="32">
+                    <Variant mode="AMBIENT" target="alpha" value="0" />
+                    <Text align="CENTER">
+                        <Font family="SYNC_TO_DEVICE" size="22" color="#FF6B6B66">
+                            <Template><![CDATA[%s]]>
+                                <Parameter expression="[COMPLICATION.TEXT]" />
+                            </Template>
+                        </Font>
+                    </Text>
+                </PartText>
+            </Complication>
+        </ComplicationSlot>
+
+    </Scene>
+</WatchFace>
