@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Exec(\"/c/Users/User/AppData/Local/Android/Sdk/emulator/emulator.exe\")"
-    ]
-  }
-}

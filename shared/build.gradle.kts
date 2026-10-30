@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.programmerq.bruneiazan.shared"
+    namespace = "it.anak.bruneiazan.shared"
     compileSdk {
         version = release(37)
     }
