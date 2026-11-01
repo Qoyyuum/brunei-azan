@@ -13,3 +13,16 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Agent worktrees
+.worktrees/
+
+# Local tool/build state
+.kotlin/
+.devin/
+.superpowers/
+
+# JVM crash dumps & stray Windows artifacts
+hs_err_pid*.log
+replay_pid*.log
+nul

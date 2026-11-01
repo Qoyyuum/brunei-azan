@@ -4,16 +4,18 @@ plugins {
 }
 
 android {
-    namespace = "dev.programmerq.bruneiazan"
+    namespace = "it.anak.bruneiazan"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "dev.programmerq.bruneiazan"
+        applicationId = "it.anak.bruneiazan"
         minSdk = 35
         targetSdk = 37
-        versionCode = 1
+        // Offset from mobile's versionCode — Play requires unique version
+        // codes across all artifacts in one app record, phone and watch.
+        versionCode = 10002
         versionName = "1.0"
 
     }
@@ -23,6 +25,11 @@ android {
             optimization {
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
+            }
+            ndk {
+                // Emit a native-debug-symbols zip for the bundled .so files
+                // (androidx deps) — Play warns when it is missing.
+                debugSymbolLevel = "SYMBOL_TABLE"
             }
         }
     }
@@ -40,7 +47,6 @@ dependencies {
     implementation(project(":shared"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.wear.watchface)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)

@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "dev.programmerq.bruneiazan"
+    namespace = "it.anak.bruneiazan"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "dev.programmerq.bruneiazan"
+        applicationId = "it.anak.bruneiazan"
         minSdk = 35
         targetSdk = 37
         versionCode = 1
@@ -24,6 +24,11 @@ android {
             optimization {
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
+            }
+            ndk {
+                // Emit a native-debug-symbols zip for the bundled .so files
+                // (androidx deps) — Play warns when it is missing.
+                debugSymbolLevel = "SYMBOL_TABLE"
             }
         }
     }
