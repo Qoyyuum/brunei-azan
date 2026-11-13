@@ -9,12 +9,25 @@ android {
         version = release(37)
     }
 
+    flavorDimensions += "store"
+    productFlavors {
+        create("gms") {
+            dimension = "store"
+            versionCode = 1
+            versionName = "1.0"
+        }
+        create("foss") {
+            dimension = "store"
+            // Offset so F-Droid can host both APKs in one app record.
+            versionCode = 101
+            versionName = "1.0-foss"
+        }
+    }
+
     defaultConfig {
         applicationId = "it.anak.bruneiazan"
         minSdk = 35
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -52,7 +65,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.play.services.wearable)
+    "gmsImplementation"(libs.play.services.wearable)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

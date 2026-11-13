@@ -85,3 +85,19 @@ location; the district is chosen manually.
 
 - Website & privacy policy: https://qoyyuum.anak.it/bruneiazan/
 - Prayer times API: https://waktu.co.bn
+## Licence
+
+[Apache-2.0](LICENSE). Prayer times come from waktu.co.bn; please check its
+terms before redistributing data from it.
+
+### Builds
+
+`mobile` and `wear` have two flavours, both with the same `applicationId`:
+
+| Flavour | versionCode offset | Wearable Data Layer sync | F-Droid |
+| ------- | ------------------ | ------------------------ | ------- |
+| `gms`   | base               | yes                      | no (proprietary `play-services-wearable`) |
+| `foss`  | +100                | no — each device keeps its own settings | yes |
+
+`tv` and `watchface` use only free components and ship one build each.
+Settings sync is phone↔watch only; the TV app never synced.
