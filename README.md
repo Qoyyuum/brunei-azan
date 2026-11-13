@@ -94,10 +94,14 @@ terms before redistributing data from it.
 
 `mobile` and `wear` have two flavours, both with the same `applicationId`:
 
-| Flavour | versionCode offset | Wearable Data Layer sync | F-Droid |
-| ------- | ------------------ | ------------------------ | ------- |
-| `gms`   | base               | yes                      | no (proprietary `play-services-wearable`) |
-| `foss`  | +100                | no — each device keeps its own settings | yes |
+| Flavour | versionCode (phone / watch) | Wearable Data Layer sync | F-Droid |
+| ------- | --------------------------- | ------------------------ | ------- |
+| `gms`   | 201 / 10202                 | yes                      | no (proprietary `play-services-wearable`) |
+| `foss`  | 101 / 10102                 | no — each device keeps its own settings | yes |
 
-`tv` and `watchface` use only free components and ship one build each.
+`gms` codes sit above the `foss` ones so that, when both flavours are signed
+with the same key, a `gms` build can update a `foss` install. F-Droid signs
+with its own key, so the two distribution channels still can't cross-update.
+`tv` and `watchface` use only free components and ship one build each
+(versionCode 20001).
 Settings sync is phone↔watch only; the TV app never synced.

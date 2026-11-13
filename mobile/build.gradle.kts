@@ -13,7 +13,10 @@ android {
     productFlavors {
         create("gms") {
             dimension = "store"
-            versionCode = 1
+            // Above the foss code (101) so a same-key gms build can update a
+            // foss install; F-Droid itself signs with its own key, so the two
+            // distribution channels still can't cross-update.
+            versionCode = 201
             versionName = "1.0"
         }
         create("foss") {

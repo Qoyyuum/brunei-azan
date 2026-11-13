@@ -19,7 +19,9 @@ android {
     productFlavors {
         create("gms") {
             dimension = "store"
-            versionCode = 10002
+            // Above the foss code (10102) so a same-key gms build can update
+            // a foss install; see the mobile module for the full rationale.
+            versionCode = 10202
             versionName = "1.0"
         }
         create("foss") {
