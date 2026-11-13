@@ -11,8 +11,8 @@ https://raw.githubusercontent.com/Qoyyuum/brunei-azan/fdroid/repo?fingerprint=B4
 
 | Package                         | versionCode | Device      |
 | ------------------------------- | ----------- | ----------- |
-| `it.anak.bruneiazan`            | 1           | Phone       |
-| `it.anak.bruneiazan`            | 10002       | Wear OS     |
+| `it.anak.bruneiazan`            | 201         | Phone       |
+| `it.anak.bruneiazan`            | 10202       | Wear OS     |
 | `it.anak.bruneiazan`            | 20001       | Android TV  |
 | `it.anak.bruneiazan.watchface`  | 20001       | Wear OS     |
 
