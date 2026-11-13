@@ -25,6 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,6 +43,12 @@ import it.anak.bruneiazan.settings.SettingsScreen
 import it.anak.bruneiazan.shared.settings.Settings
 import it.anak.bruneiazan.today.TodayScreen
 import it.anak.bruneiazan.ui.theme.BruneiAzanTheme
+import java.time.LocalDate
+import java.time.ZoneId
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,8 +78,17 @@ fun AppShell(app: AppState, settings: Settings) {
             notifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
+    var lastDistrict by remember { mutableStateOf(settings.district) }
     // Reschedule the next alarm whenever settings change (and on first launch).
     LaunchedEffect(settings) {
+        if (settings.district != lastDistrict) {
+            lastDistrict = settings.district
+            // The reschedule below is cache-only, so cache the new district's
+            // schedule first — otherwise it would cancel the prayer alarms.
+            withContext(Dispatchers.IO) {
+                app.repository.day(LocalDate.now(BRUNEI_ZONE), settings.district.apiKey)
+            }
+        }
         Rescheduler.schedule(context)
     }
     var tab by rememberSaveable { mutableIntStateOf(0) }

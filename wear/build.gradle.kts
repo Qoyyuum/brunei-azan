@@ -13,15 +13,29 @@ android {
         applicationId = "it.anak.bruneiazan"
         minSdk = 35
         targetSdk = 37
-        // Offset from mobile's versionCode — Play requires unique version
-        // codes across all artifacts in one app record, phone and watch.
-        versionCode = 10002
-        versionName = "1.0"
+    }
 
+    flavorDimensions += "store"
+    productFlavors {
+        create("gms") {
+            dimension = "store"
+            // Above the foss code (10102) so a same-key gms build can update
+            // a foss install; see the mobile module for the full rationale.
+            versionCode = 10202
+            versionName = "1.0"
+        }
+        create("foss") {
+            dimension = "store"
+            // Offset so F-Droid can host both APKs in one app record.
+            // Settings sync needs the Wearable Data Layer, absent in the FOSS build.
+            versionCode = 10102
+            versionName = "1.0-foss"
+        }
     }
 
     buildTypes {
         release {
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             optimization {
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
@@ -61,7 +75,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.ui.tooling)
     implementation(libs.guava)
-    implementation(libs.play.services.wearable)
+    "gmsImplementation"(libs.play.services.wearable)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

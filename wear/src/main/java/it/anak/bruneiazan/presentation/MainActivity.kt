@@ -11,6 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
@@ -21,6 +24,12 @@ import it.anak.bruneiazan.BruneiAzanWearApp
 import it.anak.bruneiazan.alarm.Rescheduler
 import it.anak.bruneiazan.presentation.theme.BruneiAzanTheme
 import it.anak.bruneiazan.shared.settings.Settings
+import java.time.LocalDate
+import java.time.ZoneId
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,8 +55,17 @@ fun WearApp(app: WearAppState, settings: Settings) {
     LaunchedEffect(Unit) {
         notifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
+    var lastDistrict by remember { mutableStateOf(settings.district) }
     // Reschedule the next alarm whenever settings change (and on first launch).
     LaunchedEffect(settings) {
+        if (settings.district != lastDistrict) {
+            lastDistrict = settings.district
+            // The reschedule below is cache-only, so cache the new district's
+            // schedule first — otherwise it would cancel the prayer alarms.
+            withContext(Dispatchers.IO) {
+                app.repository.day(LocalDate.now(BRUNEI_ZONE), settings.district.apiKey)
+            }
+        }
         Rescheduler.schedule(app.appContext)
     }
     // Pages: Settings | Times | Alarms. Times lands first; swipe right for

@@ -15,6 +15,7 @@ import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
 
@@ -36,7 +37,23 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
         val today = LocalDate.now(BRUNEI_ZONE)
         val tomorrow = today.plusDays(1)
         val todayDay = cache.get(district, YearMonth.from(today))
-            ?.firstOrNull { it.dateIso == today.toString() } ?: return null
+            ?.firstOrNull { it.dateIso == today.toString() }
+        if (todayDay == null) {
+            // New day or district change with nothing cached yet. Refresh in
+            // the background — a complication request must never block on the
+            // network — throttled so an offline watch doesn't hammer the API.
+            // The system re-requests complications periodically and picks up
+            // the fresh cache.
+            val now = System.currentTimeMillis()
+            if (now - lastRefreshAttempt > REFRESH_THROTTLE_MILLIS) {
+                lastRefreshAttempt = now
+                app.scope.launch {
+                    app.repository.day(today, district)
+                    app.repository.day(tomorrow, district)
+                }
+            }
+            return null
+        }
         val tomorrowDay = cache.get(district, YearMonth.from(tomorrow))
             ?.firstOrNull { it.dateIso == tomorrow.toString() }
         val next = nextPrayer(todayDay, tomorrowDay, LocalTime.now(BRUNEI_ZONE)) ?: return null
@@ -57,4 +74,11 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
         )
             .setTitle(PlainComplicationText.Builder(name).build())
             .build()
+
+    private companion object {
+        const val REFRESH_THROTTLE_MILLIS = 5 * 60_000L
+
+        @Volatile
+        var lastRefreshAttempt = 0L
+    }
 }
