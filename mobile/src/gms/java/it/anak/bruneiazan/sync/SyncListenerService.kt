@@ -6,10 +6,15 @@ import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.WearableListenerService
 import it.anak.bruneiazan.BruneiAzanApp
 import it.anak.bruneiazan.alarm.Rescheduler
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
+private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
 
 /** Applies settings pushed from the paired watch and reschedules alarms. */
 class SyncListenerService : WearableListenerService() {
@@ -31,6 +36,10 @@ class SyncListenerService : WearableListenerService() {
                 scope.launch {
                     val app = (applicationContext as BruneiAzanApp).appState
                     app.settingsStore.apply(json)
+                    // The reschedule below is cache-only, so make sure the
+                    // pushed district's schedule is cached first.
+                    val settings = app.settings.first()
+                    app.repository.day(LocalDate.now(BRUNEI_ZONE), settings.district.apiKey)
                     Rescheduler.schedule(this@SyncListenerService)
                 }
             }

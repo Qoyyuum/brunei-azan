@@ -9,10 +9,15 @@ import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUp
 import it.anak.bruneiazan.BruneiAzanWearApp
 import it.anak.bruneiazan.alarm.Rescheduler
 import it.anak.bruneiazan.complication.MainComplicationService
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
+private val BRUNEI_ZONE: ZoneId = ZoneId.of("Asia/Brunei")
 
 /** Applies settings pushed from the paired phone and reschedules alarms. */
 class SyncListenerService : WearableListenerService() {
@@ -33,6 +38,10 @@ class SyncListenerService : WearableListenerService() {
                 scope.launch {
                     val app = (applicationContext as BruneiAzanWearApp).appState
                     app.settingsStore.apply(json)
+                    // The reschedule below is cache-only, so make sure the
+                    // pushed district's schedule is cached first.
+                    val settings = app.settings.first()
+                    app.repository.day(LocalDate.now(BRUNEI_ZONE), settings.district.apiKey)
                     Rescheduler.schedule(this@SyncListenerService)
                     ComplicationDataSourceUpdateRequester
                         .create(
