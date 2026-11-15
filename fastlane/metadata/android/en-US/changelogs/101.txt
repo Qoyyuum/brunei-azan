@@ -1,0 +1,1 @@
+Initial release: Brunei prayer times, per-prayer and custom alarms, and offline-cached monthly schedules.

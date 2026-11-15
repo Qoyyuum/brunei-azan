@@ -1,0 +1,14 @@
+Brunei Azan shows prayer times for Brunei Darussalam and sounds an azan (or beep) alarm at each prayer you enable.
+
+Features:
+
+* Today's prayer times with a live countdown to the next prayer
+* Monthly schedule fetched from waktu.co.bn, cached on-device for offline use
+* Per-prayer alarms (Subuh, Syuruk, Zohor, Asar, Maghrib, Isyak) plus your own custom alarms
+* Alarms survive reboot and reschedule automatically when settings change
+* Choice of alarm sounds, with preview
+* Companion Wear OS app (watch app and watch face) and Android TV app
+
+The F-Droid package is the "foss" build: it contains no Google Play Services, so phone↔watch settings sync is disabled — each device keeps its own settings. Everything else works fully offline once the month's prayer times are fetched.
+
+Prayer times data: https://waktu.co.bn
